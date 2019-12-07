@@ -14,10 +14,13 @@ namespace Grpc_server {
 	class Server_main;
 }
 
-static void *start_func(void *)
+static void *start_func(void* envp)
 {
-	Libc::with_libc([] () {
-		RunServer();
+	Genode::Env& env = *(reinterpret_cast<Genode::Env*>(envp));
+	Genode::Attached_rom_dataspace config { env, "config" };
+	Genode::String<256> server_address = config.xml().attribute_value("server_address", Genode::String<256>("0.0.0.0:8899"));
+	Libc::with_libc([&] () {
+		RunServer(server_address.string());
 	});
 
 	return nullptr;
@@ -27,13 +30,13 @@ class Grpc_server::Server_main
 {
 	private:
 		Env& _env;
+		pthread_t _t;
 
 	public:
 		Server_main(Env& env)
 			: _env(env)
 		{
-			pthread_t t;
-			pthread_create(&t, 0, start_func, nullptr);
+			pthread_create(&_t, 0, start_func, &env);
 		}
 };
 
