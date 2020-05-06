@@ -7,7 +7,6 @@ LIBS               += stdcxx
 LIBS               += grpc
 LIBS               += libc_pipe
 LIBS               += vfs
-LIBS               += vfs_lwip
 
 CC_CXX_WARN_STRICT :=
 
